@@ -51,7 +51,7 @@ def share(request, urlToShare):
                   message="%s thought you might enjoy this ad: %s. \n If you do, let us know and you'll get more like this in the future." % (sent_by.user.username, customUrl),
                   from_email="vijay+devnull@andrew.cmu.edu",
                   recipient_list=[sent_to.user.username])
-        messages.add_message(request, messages.INFO, "Successfully referred video to %s" % sent_to.user.username)
+        messages.add_message(request, messages.INFO, "Successfully referred video to %s. If they like it, you'll get a point. If they dislike it, you'll lose a point." % sent_to.user.username)
     return redirect('/adsuggest/index.html')
 
 @login_required

@@ -5,34 +5,7 @@ import urllib2
 import json
 
 LONG = 500
-
-class AdUser(models.Model):
-    user = models.OneToOneField(User)
-    score = models.IntegerField()
-    favoriteCategory = models.CharField(max_length=LONG)
-    favoriteCategoryCounts = {}
-    recommended = []
-
-    def incrementScore(self, amount=1):
-        self.score += amount
-        self.save()
-
-    def recommend(self, ads):
-        self.recommended += ads
-        self.save()
-
-    def updateFavorite(self, category):
-        if not category in self.favoriteCategoryCounts:
-            self.favoriteCategoryCounts[category] = 0
-        self.favoriteCategoryCounts[category] += 1
-        if not self.favoriteCategory:
-            self.favoriteCategory = category   
-        if self.favoriteCategoryCounts[category] > self.favoriteCategoryCounts[self.favoriteCategory]:
-            self.favoriteCategory = category
-
-        self.save()
-
-        
+NUM_RELATED_VIDS = 5
 
 class Ad(models.Model):
     category = models.CharField(max_length=LONG)
@@ -56,11 +29,41 @@ def extraInitForAd(**kwargs):
 
     similar_videos_url = "https://gdata.youtube.com/feeds/api/videos?author=" + self.uploader + "&v=2&orderby=updated&alt=jsonc"
     text = json.load(urllib2.urlopen(similar_videos_url))
-    self.related_videos = ['https://www.youtube.com/watch?v='+text['data']['items'][i]['id'] for i in xrange(10)]
+    self.related_videos = [text['data']['items'][i]['id'] for i in xrange(NUM_RELATED_VIDS)]
     self.save()
 
 post_init.connect(extraInitForAd, Ad)
 
+
+class AdUser(models.Model):
+    user = models.OneToOneField(User)
+    score = models.IntegerField()
+    favoriteCategory = models.CharField(max_length=LONG)
+    favoriteCategoryCounts = {}
+    recommended = models.ManyToManyField(Ad) # list of ad objects
+
+    def incrementScore(self, amount=1):
+        self.score += amount
+        self.save()
+
+    def recommend(self, ads):
+        for ad_id in ads:
+            a, _ = Ad.objects.get_or_create(url_id=ad_id)
+            self.recommended.add(a)
+        self.save()
+
+    def updateFavorite(self, category):
+        if not category in self.favoriteCategoryCounts:
+            self.favoriteCategoryCounts[category] = 0
+        self.favoriteCategoryCounts[category] += 1
+        if not self.favoriteCategory:
+            self.favoriteCategory = category   
+        if self.favoriteCategoryCounts[category] > self.favoriteCategoryCounts[self.favoriteCategory]:
+            self.favoriteCategory = category
+
+        self.save()
+
+        
 class SharedAd(models.Model):
     ad = models.ForeignKey(Ad)
     sent_by = models.ForeignKey(AdUser, related_name="sent_by")

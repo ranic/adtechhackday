@@ -1,29 +1,11 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>A Private Todo List</title>
-</head>
+{% extends 'adsuggest/base.html' %}
 
-<body>
-Logged in user: {{user.username}}, Score: {{user.aduser.score}}
-<br/>
-<iframe width="420" height="345"
-src="{{embedUrl}}">
-</iframe>
+{% block content %}
+<p>
+Don't like this ad, but think a friend might? Share it!
 <form method="post" action="{% url 'share' ad.url_id %}">
 {{form}}
 <input type="submit" value="Send!">
 {% csrf_token %}
 </form>
-{% if messages %}
-    {% for message in messages %}
-    <p style="color:red">{{message}}</p>
-    {% endfor %}
-    <p>
-{% endif %}
-<a href="{% url 'logout' %}">Logout</a>
-</p>
-</body>
-</html>
-
+{% endblock content %}

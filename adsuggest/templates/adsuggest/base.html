@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ads with Friends</title>
+</head>
+
+<body>
+Logged in user: {{user.username}}, Score: {{user.aduser.score}}
+<br/>
+<iframe width="420" height="345"
+src="{{embedUrl}}">
+</iframe>
+{% block content %}
+
+{% endblock %}
+{% if messages %}
+    {% for message in messages %}
+    <p style="color:red">{{message}}</p>
+    {% endfor %}
+    <p>
+{% endif %}
+<a href="{% url 'logout' %}">Logout</a>
+</p>
+</body>
+</html>
