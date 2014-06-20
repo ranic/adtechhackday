@@ -40,7 +40,8 @@ class AdUser(models.Model):
     score = models.IntegerField()
     favoriteCategory = models.CharField(max_length=LONG)
     favoriteCategoryCounts = {}
-    recommended = models.ManyToManyField(Ad) # list of ad objects
+    recommended = models.ManyToManyField(Ad, related_name='recommended_by') 
+    blacklisted = models.ManyToManyField(Ad, related_name='blacklisted_by') # user has disliked these, so he cannot be referred to them 
 
     def incrementScore(self, amount=1):
         self.score += amount
@@ -50,6 +51,18 @@ class AdUser(models.Model):
         for ad_id in ads:
             a, _ = Ad.objects.get_or_create(url_id=ad_id)
             self.recommended.add(a)
+        self.save()
+
+    def blacklist(self, ad_id):
+        # Add to blacklist and remove from recommended, if it exists
+        self.blacklisted.add(Ad.objects.get(url_id=ad_id))
+        try:
+            a = self.recommended.get(url_id=ad_id)
+            recommended.remove(a)
+        except Exception as e:
+            pass   
+         
+
         self.save()
 
     def updateFavorite(self, category):
@@ -82,6 +95,7 @@ class SharedAd(models.Model):
     def dislike(self):
         self.is_liked = False
         self.is_disliked = True
+        self.sent_to.blacklist(self.ad.url_id)
         self.sent_by.incrementScore(-1)
         self.save()
 

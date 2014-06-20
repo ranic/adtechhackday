@@ -18,7 +18,17 @@ from random import randint
 def getAd(user):
     #TODO: Make this more intelligent than just randomly selecting an ad
     allAds = Ad.objects.all()
-    return allAds[randint(0, len(allAds)-1)]
+    userRecommendedAds = user.recommended.all()
+    coinFlip = randint(0,1)
+
+    if coinFlip and len(userRecommendedAds):
+        return userRecommendedAds[randint(0, len(userRecommendedAds)-1)]
+    else:
+        while True:
+            a = allAds[randint(0, len(allAds)-1)]
+            # Only return an ad if it's not blacklisted
+            if (not user.blacklisted.filter(url_id=a.url_id)):
+                return allAds[randint(0, len(allAds)-1)]
     
 
 @login_required
