@@ -6,11 +6,15 @@
 </head>
 
 <body>
-
+Logged in user: {{user.username}}, Score: {{user.aduser.score}}
+<br/>
 <iframe width="420" height="345"
 src="http://www.youtube.com/embed/uQB7QRyF4p4">
 </iframe>
 
+<p>
+<a href="{% url 'logout' %}">Logout</a>
+</p>
 </body>
 </html>
 
