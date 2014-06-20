@@ -1,16 +1,21 @@
 import urllib2
-import json
+import json # derulo
 import pprint
 
-def retrieveJSON(videoID):
+def retrieve_JSON(videoID):
     URL = 'http://gdata.youtube.com/feeds/api/videos/' + videoID + '?v=2&alt=jsonc'
     res = urllib2.urlopen(URL)
 
-    yo = json.load(res)
+    return json.load(res)
 
-    pprint.pprint(yo)
+def get_category(videoID):
+    JSON = retrieve_JSON(videoID)
 
-retrieveJSON('WLYnXyRFxB8')
+    return JSON['data']['category']
+
+
+if __name__ == '__main__':
+    print get_category('6BTjG-dhf5s')
 
 
 
