@@ -26,6 +26,7 @@ def getAd(user):
         return choice(allAds.filter(uploader=uploader))
     else:
         while True:
+            print "here"
             a = allAds[randint(0, len(allAds)-1)]
             # Only return an ad if it's not blacklisted
             if (not user.blacklisted.filter(url_id=a.url_id)):
