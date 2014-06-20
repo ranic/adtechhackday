@@ -122,8 +122,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # configure the settings below.
 #EMAIL_HOST = 'smtp.gmail.com'               # perhaps 'smtp.andrew.cmu.edu'
 #EMAIL_PORT = 587
-#EMAIL_HOST_USER = 'adtechhackday@gmail.com'      # perhaps your Andrew ID
-#EMAIL_HOST_PASSWORD = 'adswithfriends'
+#EMAIL_HOST_USER = 'eventfinder.cmu@gmail.com'      # perhaps your Andrew ID
+#EMAIL_HOST_PASSWORD = 'qemummcinit'
 #EMAIL_USE_TLS = True
 
 # Used by the authentication system for the private-todo-list application.
