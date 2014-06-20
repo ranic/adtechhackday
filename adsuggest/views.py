@@ -13,16 +13,17 @@ from django.contrib.auth.models import User
 from adsuggest.models import AdUser, Ad, SharedAd
 from django.contrib.auth import login, authenticate
 from adsuggest.forms import ShareForm
-from random import randint
+from random import randint, choice
 
 def getAd(user):
     #TODO: Make this more intelligent than just randomly selecting an ad
     allAds = Ad.objects.all()
-    userRecommendedAds = user.recommended.all()
+    userRecommendedUploaders = user.recommendedUploaders.all()
     coinFlip = randint(0,1)
 
-    if coinFlip and len(userRecommendedAds):
-        return userRecommendedAds[randint(0, len(userRecommendedAds)-1)]
+    if coinFlip and len(userRecommendedUploaders):
+        uploader = userRecommendedUploaders[randint(0, len(userRecommendedUploaders)-1)]
+        return choice(allAds.filter(uploader=uploader))
     else:
         while True:
             a = allAds[randint(0, len(allAds)-1)]
