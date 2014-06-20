@@ -9,7 +9,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Charlie Garrod', 'charlie@cs.cmu.edu'),
+    ('Vijay Jayaram', 'jayaramv@a9.com'),
 )
 
 MANAGERS = ADMINS
@@ -68,6 +68,7 @@ STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
+    os.path.join(os.getcwd() + "../static/"),
 )
 
 # List of finder classes that know how to find static files in
@@ -117,6 +118,13 @@ INSTALLED_APPS = (
     'adsuggest'
 )
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# To enable real email-sending, you should uncomment and 
+# configure the settings below.
+#EMAIL_HOST = 'smtp.gmail.com'               # perhaps 'smtp.andrew.cmu.edu'
+#EMAIL_PORT = 587
+#EMAIL_HOST_USER = 'adtechhackday@gmail.com'      # perhaps your Andrew ID
+#EMAIL_HOST_PASSWORD = 'adswithfriends'
+#EMAIL_USE_TLS = True
 
 # Used by the authentication system for the private-todo-list application.
 # URL to use if the authentication system requires a user to log in.

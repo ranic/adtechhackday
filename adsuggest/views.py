@@ -28,7 +28,7 @@ def getAd(user):
             a = allAds[randint(0, len(allAds)-1)]
             # Only return an ad if it's not blacklisted
             if (not user.blacklisted.filter(url_id=a.url_id)):
-                return allAds[randint(0, len(allAds)-1)]
+                return a
     
 
 @login_required
@@ -44,7 +44,6 @@ def share(request, urlToShare):
     context = {}
     context['errors'] = []
     if request.method=="POST":
-        print "Url to share is: %s" % urlToShare
         form = ShareForm(request.POST)
         if not form.is_valid():
             context['form'] = form
@@ -52,6 +51,9 @@ def share(request, urlToShare):
         sent_by = request.user.aduser
         sent_to = get_object_or_404(User, username=form.cleaned_data.get('email')).aduser
         ad = get_object_or_404(Ad, url_id=urlToShare)
+        if (sent_by.blacklisted.filter(url_id=urlToShare)):
+           messages.add_message(request, messages.INFO, "This ad has been disliked by %s in the past, so we will not refer it to them." % sent_to.user.username) 
+           return render(request, 'adsuggest/index.html', context)
         sharedAdObj = SharedAd(sent_by=sent_by, sent_to=sent_to, ad=ad, url="")
         sharedAdObj.save()
         customUrl = "localhost:8000/adsuggest/referral%d" % sharedAdObj.pk

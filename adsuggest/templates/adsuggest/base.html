@@ -3,11 +3,42 @@
 <head>
   <meta charset="utf-8">
   <title>Ads with Friends</title>
+  {% load staticfiles %}
+  <link href="{% static 'bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+  <style>
+    .btn-xlarge {
+    padding: 18px 28px;
+    font-size: 22px;
+    line-height: normal;
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+    }
+
+
+  </style>
 </head>
 
 <body>
-Logged in user: {{user.username}}, Score: {{user.aduser.score}}
-<br/>
+<div class="navbar navbar-inverse">
+    <div class="navbar-inner">
+      <a class="brand" href="/adsuggest/index.html">AdsWithFriends</a>
+      <ul class="nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            {{user.username}}
+            <b class="caret"></b></a>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+              <li><a href="">Score: {{user.aduser.score}}</a></li>
+              <li><a href="{% url 'logout' %}">Logout</a></li>
+            </ul>
+          </li>
+          </ul>
+            </div>
+          </div>
+<div class="container">
+<div class="row-fluid">
+<div class="span6">
 <iframe width="420" height="345"
 src="{{embedUrl}}">
 </iframe>
@@ -18,9 +49,15 @@ src="{{embedUrl}}">
     {% for message in messages %}
     <p style="color:red">{{message}}</p>
     {% endfor %}
-    <p>
 {% endif %}
-<a href="{% url 'logout' %}">Logout</a>
-</p>
+</div>
+<div class="span6">
+   <a href="/adsuggest/index.html"><button type="button" href="/adsuggest/index.html" class="btn btn-success btn-xlarge">Get new random ad!</button></a>
+</div>
+</div>
+</div>
+
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.js' %}" ></script>
 </body>
 </html>

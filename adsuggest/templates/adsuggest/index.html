@@ -5,7 +5,8 @@
 Don't like this ad, but think a friend might? Share it!
 <form method="post" action="{% url 'share' ad.url_id %}">
 {{form}}
-<input type="submit" value="Send!">
+<br/>
+<button type="submit" class="btn btn-default">Submit</button>
 {% csrf_token %}
 </form>
 {% endblock content %}
