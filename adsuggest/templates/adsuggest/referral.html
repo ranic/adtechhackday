@@ -17,13 +17,20 @@ You've been recommended this ad by {{sent_by}}!
 <input type="submit" value="Send!">
 {% csrf_token %}
 </form>
-{% if is_not_liked %}
+{% if not is_liked and not is_disliked %}
     <form method="post" action="{% url 'like' id %}">
     <input type="submit" value="I like this!">
     {% csrf_token %}
     </form>
-{% else %}
+
+    <form method="post" action="{% url 'dislike' id %}">
+    <input type="submit" value="I dislike this.">
+    {% csrf_token %}
+    </form>
+{% elif is_liked %}
     <p style="color:blue"> You like this! </p>
+{% elif is_disliked %}
+    <p style="color:red"> You dislike this! </p>
 {% endif %}
 {% if messages %}
     {% for message in messages %}

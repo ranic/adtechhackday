@@ -9,7 +9,8 @@ LONG = 500
 class AdUser(models.Model):
     user = models.OneToOneField(User)
     score = models.IntegerField()
-    favorite_category = models.CharField(max_length=LONG)
+    favoriteCategory = models.CharField(max_length=LONG)
+    favoriteCategoryCounts = {}
     recommended = []
 
     def incrementScore(self, amount=1):
@@ -19,6 +20,19 @@ class AdUser(models.Model):
     def recommend(self, ads):
         self.recommended += ads
         self.save()
+
+    def updateFavorite(self, category):
+        if not category in self.favoriteCategoryCounts:
+            self.favoriteCategoryCounts[category] = 0
+        self.favoriteCategoryCounts[category] += 1
+        if not self.favoriteCategory:
+            self.favoriteCategory = category   
+        if self.favoriteCategoryCounts[category] > self.favoriteCategoryCounts[self.favoriteCategory]:
+            self.favoriteCategory = category
+
+        self.save()
+
+        
 
 class Ad(models.Model):
     category = models.CharField(max_length=LONG)
@@ -52,12 +66,19 @@ class SharedAd(models.Model):
     sent_by = models.ForeignKey(AdUser, related_name="sent_by")
     sent_to = models.ForeignKey(AdUser, related_name="sent_to")
     is_liked = models.BooleanField(default=False)
+    is_disliked = models.BooleanField(default=False)
     url = models.CharField(max_length=LONG)
 
     def like(self):
-        # Grow his list of recommended videos in that category
         self.is_liked = True
-        self.sent_to.recommend(self.ad.related_videos)
+        self.sent_to.recommend(self.ad.related_videos) # recommend related videos
+        self.sent_to.updateFavorite(self.ad.category)
         self.sent_by.incrementScore()
+        self.save()
+
+    def dislike(self):
+        self.is_liked = False
+        self.is_disliked = True
+        self.sent_by.incrementScore(-1)
         self.save()
 

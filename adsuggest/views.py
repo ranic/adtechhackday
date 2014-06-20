@@ -63,7 +63,8 @@ def referral(request, id):
     
     ad = sharedAdObj.ad
     context = {'embedUrl' : ad.embedUrl(), 'sent_by' : sharedAdObj.sent_by.user, 'ad' : ad, 'id' : sharedAdObj.pk}
-    context['is_not_liked'] = not sharedAdObj.is_liked
+    context['is_liked'] = sharedAdObj.is_liked
+    context['is_disliked'] = sharedAdObj.is_disliked
     context['form'] = ShareForm()
     return render(request, 'adsuggest/referral.html', context)
 
@@ -74,8 +75,20 @@ def like(request, id):
     if (request.user != sharedAdObj.sent_to.user):
         messages.add_message(request, messages.INFO, "You were not authorized to view that page, so we redirected you.")
         return redirect('/adsuggest/index.html')
-
+    print "calling like function"
     sharedAdObj.like()
+ 
+    return redirect(request.META['HTTP_REFERER'])
+
+@login_required
+def dislike(request, id):
+    context = {}
+    sharedAdObj = SharedAd.objects.get(pk=id)
+    if (request.user != sharedAdObj.sent_to.user):
+        messages.add_message(request, messages.INFO, "You were not authorized to view that page, so we redirected you.")
+        return redirect('/adsuggest/index.html')
+    print "calling dislike function"
+    sharedAdObj.dislike()
  
     return redirect(request.META['HTTP_REFERER'])
 

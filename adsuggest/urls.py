@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url(r'register$', 'adsuggest.views.register', name='register'),
     url(r'share(?P<urlToShare>\S+)$', 'adsuggest.views.share', name='share'),
     url(r'referral(?P<id>\d+)$', 'adsuggest.views.referral', name='referral'),
-    url(r'like(?P<id>\d+)$', 'adsuggest.views.like', name='like'),
+    url(r'^like(?P<id>\d+)$', 'adsuggest.views.like', name='like'),
+    url(r'^dislike(?P<id>\d+)$', 'adsuggest.views.dislike', name='dislike'),
     url(r'', 'adsuggest.views.home', name='home'),
 )
