@@ -4,5 +4,5 @@ from django.conf.urls import patterns, include, url
 # URL patterns by regular expression, and choosing the actual route by
 # including the appropriate route file for each application.
 urlpatterns = patterns('',
-    url(r'^private-todo-list/', include('private_todo_list.urls')),
+    url(r'^$', include('adsuggest.urls'))
 )

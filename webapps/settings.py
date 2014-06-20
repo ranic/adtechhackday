@@ -113,15 +113,15 @@ INSTALLED_APPS = (
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'private_todo_list',
+    'adsuggest'
 )
 
 # Used by the authentication system for the private-todo-list application.
 # URL to use if the authentication system requires a user to log in.
-LOGIN_URL = '/private-todo-list/login'
+LOGIN_URL = '/adsuggest/login'
 
 # Default URL to redirect to after a user logs in.
-LOGIN_REDIRECT_URL = '/private-todo-list/'
+LOGIN_REDIRECT_URL = '/adsuggest/'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
