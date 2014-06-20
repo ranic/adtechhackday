@@ -115,6 +115,7 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'adsuggest'
 )
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Used by the authentication system for the private-todo-list application.
 # URL to use if the authentication system requires a user to log in.

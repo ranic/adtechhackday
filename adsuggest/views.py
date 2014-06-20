@@ -1,20 +1,83 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 
 # Decorator to use built-in authentication system
 from django.contrib.auth.decorators import login_required
 
+from django.contrib import messages
+from django.core.mail import send_mail
+
 # Used to create and manually log in a user
 from django.contrib.auth.models import User
-from adsuggest.models import AdUser
+from adsuggest.models import AdUser, Ad, SharedAd
 from django.contrib.auth import login, authenticate
+from adsuggest.forms import ShareForm
+from random import randint
+
+def getAd(user):
+    #TODO: Make this more intelligent than just randomly selecting an ad
+    allAds = Ad.objects.all()
+    return allAds[randint(0, len(allAds)-1)]
+    
 
 @login_required
 def home(request):
-    request.user.aduser.incrementScore()
-    context = {'user' : request.user}
+    ad = getAd(request.user.aduser)
+    embedUrl = ad.embedUrl()
+    context = {'user' : request.user, 'form' : ShareForm(), 'ad': ad, 'embedUrl' : embedUrl}
     return render(request, 'adsuggest/index.html', context)
+
+
+@login_required
+def share(request, urlToShare):
+    context = {}
+    context['errors'] = []
+    if request.method=="POST":
+        print "Url to share is: %s" % urlToShare
+        form = ShareForm(request.POST)
+        if not form.is_valid():
+            context['form'] = form
+            return render(request, 'adsuggest/index.html', context)
+        sent_by = request.user.aduser
+        sent_to = get_object_or_404(User, username=form.cleaned_data.get('email')).aduser
+        ad = get_object_or_404(Ad, url_id=urlToShare)
+        sharedAdObj = SharedAd(sent_by=sent_by, sent_to=sent_to, ad=ad, url="")
+        sharedAdObj.save()
+        customUrl = "localhost:8000/adsuggest/referral%d" % sharedAdObj.pk
+        sharedAdObj.url = customUrl
+        sharedAdObj.save()
+        send_mail(subject="You got a video referral!",
+                  message="%s thought you might enjoy this ad: %s. \n If you do, let us know and you'll get more like this in the future." % (sent_by.user.username, customUrl),
+                  from_email="vijay+devnull@andrew.cmu.edu",
+                  recipient_list=[sent_to.user.username])
+        messages.add_message(request, messages.INFO, "Successfully referred video to %s" % sent_to.user.username)
+    return redirect('/adsuggest/index.html')
+
+@login_required
+def referral(request, id):
+    sharedAdObj = SharedAd.objects.get(pk=id)
+    if (request.user != sharedAdObj.sent_to.user):
+        messages.add_message(request, messages.INFO, "You were not authorized to view that page, so we redirected you.")
+        return redirect('/adsuggest/index.html')
+    
+    ad = sharedAdObj.ad
+    context = {'embedUrl' : ad.embedUrl(), 'sent_by' : sharedAdObj.sent_by.user, 'ad' : ad, 'id' : sharedAdObj.pk}
+    context['is_not_liked'] = not sharedAdObj.is_liked
+    context['form'] = ShareForm()
+    return render(request, 'adsuggest/referral.html', context)
+
+@login_required
+def like(request, id):
+    context = {}
+    sharedAdObj = SharedAd.objects.get(pk=id)
+    if (request.user != sharedAdObj.sent_to.user):
+        messages.add_message(request, messages.INFO, "You were not authorized to view that page, so we redirected you.")
+        return redirect('/adsuggest/index.html')
+
+    sharedAdObj.like()
+ 
+    return redirect(request.META['HTTP_REFERER'])
 
 @transaction.commit_on_success
 def register(request):

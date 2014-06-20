@@ -8,14 +8,23 @@
 <body>
 Logged in user: {{user.username}}, Score: {{user.aduser.score}}
 <br/>
-<iframe width="420" height="345"
-src="{{embedUrl}}">
-</iframe>
+<p>
+You've been recommended this ad by {{sent_by}}!
+</p>
+<iframe width="420" height="345" src="{{embedUrl}}"></iframe>
 <form method="post" action="{% url 'share' ad.url_id %}">
 {{form}}
 <input type="submit" value="Send!">
 {% csrf_token %}
 </form>
+{% if is_not_liked %}
+    <form method="post" action="{% url 'like' id %}">
+    <input type="submit" value="I like this!">
+    {% csrf_token %}
+    </form>
+{% else %}
+    <p style="color:blue"> You like this! </p>
+{% endif %}
 {% if messages %}
     {% for message in messages %}
     <p style="color:red">{{message}}</p>
@@ -26,4 +35,3 @@ src="{{embedUrl}}">
 </p>
 </body>
 </html>
-
