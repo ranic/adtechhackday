@@ -10,12 +10,16 @@ NUM_RELATED_VIDS = 5
 class Uploader(models.Model):
     text = models.CharField(max_length=LONG, primary_key=True)
 
-
+    def get_ads(self):
+        similar_videos_url = "https://gdata.youtube.com/feeds/api/videos?author=" + self.text + "&v=2&orderby=updated&alt=jsonc"
+        result_text = json.load(urllib2.urlopen(similar_videos_url)) 
+        related_videos = [result_text['data']['items'][i]['id'] for i in xrange(NUM_RELATED_VIDS)]
+        return related_videos
+        
 class Ad(models.Model):
     category = models.CharField(max_length=LONG)
     uploader = models.ForeignKey(Uploader)
     url_id = models.CharField(max_length=LONG, primary_key=True)
-    related_videos = []
 
     def get_url(self):
         return "http://www.youtube.com/watch?v=" + self.url_id
@@ -34,7 +38,6 @@ def extraInitForAd(**kwargs):
 
     similar_videos_url = "https://gdata.youtube.com/feeds/api/videos?author=" + self.uploader.text + "&v=2&orderby=updated&alt=jsonc"
     text = json.load(urllib2.urlopen(similar_videos_url))
-    self.related_videos = [text['data']['items'][i]['id'] for i in xrange(NUM_RELATED_VIDS)]
     self.save()
 
 post_init.connect(extraInitForAd, Ad)
@@ -44,19 +47,16 @@ class AdUser(models.Model):
     user = models.OneToOneField(User)
     score = models.IntegerField()
     favoriteCategory = models.CharField(max_length=LONG)
-    recommended = models.ManyToManyField(Ad, related_name='recommended_by') 
     blacklisted = models.ManyToManyField(Ad, related_name='blacklisted_by') # user has disliked these, so he cannot be referred to them 
     recommendedUploaders = models.ManyToManyField(Uploader, related_name='recommended_by')
-    blacklistedUploaders = models.ManyToManyField(Uploader, related_name='blacklisted_by')
 
     def incrementScore(self, amount=1):
         self.score += amount
         self.save()
 
-    def recommend(self, ads):
-        for ad_id in ads:
+    def recommend(self, uploader):
+        for ad_id in uploader.get_ads():
             a, _ = Ad.objects.get_or_create(url_id=ad_id)
-            self.recommended.add(a)
             self.recommendedUploaders.add(a.uploader)
 
         self.save()
@@ -65,8 +65,6 @@ class AdUser(models.Model):
         # Add to blacklist and remove from recommended, if it exists
         self.blacklisted.add(Ad.objects.get(url_id=ad_id))
         try:
-            a = self.recommended.get(url_id=ad_id)
-            recommended.remove(a)
             a = self.recommendedUploaders.get(url_id=ad_id)
             recommendedUploaders.remove(a)
         except Exception as e:
@@ -84,7 +82,7 @@ class SharedAd(models.Model):
 
     def like(self):
         self.is_liked = True
-        self.sent_to.recommend(self.ad.related_videos) # recommend related videos
+        self.sent_to.recommend(self.ad.uploader) # recommend related videos
         self.sent_by.incrementScore()
         self.save()
 

@@ -17,17 +17,16 @@ from random import randint, choice
 
 def getAd(user):
     #TODO: Make this more intelligent than just randomly selecting an ad
-    allAds = Ad.objects.all()
     userRecommendedUploaders = user.recommendedUploaders.all()
     coinFlip = randint(0,1)
 
     if coinFlip and len(userRecommendedUploaders):
-        uploader = userRecommendedUploaders[randint(0, len(userRecommendedUploaders)-1)]
-        return choice(allAds.filter(uploader=uploader))
+        uploader = choice(userRecommendedUploaders)
+        return choice(Ad.objects.filter(uploader=uploader))
     else:
+        allAds = Ad.objects.all()
         while True:
-            print "here"
-            a = allAds[randint(0, len(allAds)-1)]
+            a = choice(allAds)
             # Only return an ad if it's not blacklisted
             if (not user.blacklisted.filter(url_id=a.url_id)):
                 return a
